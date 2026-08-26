@@ -7,8 +7,16 @@ const { json, parseCookies, setCookie, clearCookie } = require("../lib/helpers")
 module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") return json(res, 200, {});
 
-  const url = new URL(req.url, "http://localhost");
-  const path = url.pathname.replace(/^\/api\/?/, "/").replace(/\/$/, "") || "/";
+  const rawPath = req.url.split("?")[0];
+  let path;
+  if (rawPath.startsWith("/api/")) {
+    path = rawPath.slice(4) || "/";
+  } else if (rawPath === "/api") {
+    path = "/";
+  } else {
+    path = rawPath || "/";
+  }
+  path = path.replace(/\/$/, "") || "/";
 
   const routes = {
     "POST /register": handleRegister,
